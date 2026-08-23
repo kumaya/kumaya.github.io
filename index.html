@@ -21,6 +21,21 @@
   <link rel="stylesheet" href="/assets/css/main.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <style>
+    /* Full Page & Background Fix for Mobile */
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #particles-js {
+      min-height: 100vh;
+      height: auto !important;
+      width: 100%;
+      position: relative;
+      overflow-x: hidden;
+    }
+
     /* Side-by-side Layout Wrapper */
     .content-split-row {
       display: flex;
@@ -269,7 +284,6 @@
 
               <div class="deck-card">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" class="company-logo">
-                <div class="timeline-title">Google</div>
                 <div class="timeline-role">Senior Software Engineer</div>
               </div>
 
