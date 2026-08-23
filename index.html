@@ -21,36 +21,160 @@
   <link rel="stylesheet" href="/assets/css/main.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <style>
-    .timeline-section {
-      margin-top: 30px;
-      margin-bottom: 40px;
+    /* Deck Section Styling */
+    .timeline-deck-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 320px;
+      margin: 40px auto 30px auto;
+      perspective: 1000px;
     }
-    .timeline-card {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
+
+    .deck-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+    }
+
+    .deck-card {
+      position: absolute;
+      width: 280px;
+      height: 220px;
+      left: 50%;
+      top: 20px;
+      margin-left: -140px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 24px 16px;
       text-align: center;
-      transition: transform 0.2s ease-in-out;
+      transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+      opacity: 0;
+      visibility: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
-    .timeline-card:hover {
-      transform: translateY(-5px);
+
+    /* Active Front Card */
+    .deck-card.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1) translateZ(0);
+      z-index: 3;
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.18);
     }
+
+    /* Left Card */
+    .deck-card.prev {
+      opacity: 0.6;
+      visibility: visible;
+      transform: translateX(-180px) scale(0.82) translateZ(-100px);
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    /* Right Card */
+    .deck-card.next {
+      opacity: 0.6;
+      visibility: visible;
+      transform: translateX(180px) scale(0.82) translateZ(-100px);
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    /* Hidden Rear Cards */
+    .deck-card.hidden-card {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(0) scale(0.6) translateZ(-200px);
+      z-index: 1;
+    }
+
     .company-logo {
-      max-height: 50px;
-      max-width: 120px;
+      max-height: 55px;
+      max-width: 150px;
       margin-bottom: 15px;
       object-fit: contain;
+      filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
     }
+
     .timeline-title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       color: #fff;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
+
     .timeline-role {
       font-size: 14px;
-      color: #ccc;
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+
+    /* Deck Navigation Controls */
+    .deck-controls {
+      text-align: center;
+      margin-top: -30px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .deck-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 0 10px;
+      outline: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .deck-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(1.1);
+    }
+
+    .deck-dots {
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      margin: 0 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active-dot {
+      background: #fff;
+      width: 24px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .deck-card.prev {
+        transform: translateX(-100px) scale(0.75) translateZ(-100px);
+      }
+      .deck-card.next {
+        transform: translateX(100px) scale(0.75) translateZ(-100px);
+      }
     }
   </style>
 </head>
@@ -71,32 +195,42 @@
         </div>
       </div>
 
-      <!-- Experience Timeline -->
-      <div class="row timeline-section">
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="timeline-card">
+      <!-- Rotating Timeline Deck -->
+      <div class="timeline-deck-container" id="timelineDeck">
+        <div class="deck-wrapper">
+          
+          <div class="deck-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Indian_Statistical_Institute_Logo.svg/240px-Indian_Statistical_Institute_Logo.svg.png" alt="ISI Kolkata" class="company-logo">
             <div class="timeline-title">ISI Kolkata</div>
             <div class="timeline-role">Intern</div>
           </div>
-        </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="timeline-card">
+
+          <div class="deck-card">
             <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Hewlett_Packard_Enterprise_logo.svg" alt="HPE" class="company-logo">
+            <div class="timeline-title">HPE</div>
             <div class="timeline-role">Senior Software Engineer</div>
           </div>
-        </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="timeline-card">
-            <img src="https://www.infoblox.com/blog/wp-content/uploads/infoblox-logo-2023.png" alt="Infoblox" class="company-logo">
+
+          <div class="deck-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Infoblox_logo.svg/320px-Infoblox_logo.svg.png" alt="Infoblox" class="company-logo">
+            <div class="timeline-title">Infoblox</div>
             <div class="timeline-role">Senior Staff Software Engineer</div>
           </div>
-        </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="timeline-card">
-            <img src="https://www.vectorlogo.zone/logos/google/google-ar21.svg" alt="Google" class="company-logo">
+
+          <div class="deck-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" class="company-logo">
+            <div class="timeline-title">Google</div>
             <div class="timeline-role">Senior Software Engineer</div>
           </div>
+
         </div>
+      </div>
+
+      <!-- Deck Controls -->
+      <div class="deck-controls">
+        <button class="deck-btn" id="prevBtn"><i class="fa fa-chevron-left"></i></button>
+        <div class="deck-dots" id="deckDots"></div>
+        <button class="deck-btn" id="nextBtn"><i class="fa fa-chevron-right"></i></button>
       </div>
 
       <div class="row links">
@@ -118,9 +252,95 @@
         </center>
       </div>
     </div>
+
     <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="/assets/js/particles.js"></script>
+
+    <!-- Deck Rotation Engine Script -->
+    <script>
+      $(document).ready(function () {
+        const cards = $('.deck-card');
+        const totalCards = cards.length;
+        let currentIndex = 0;
+        let autoRotateTimer = null;
+
+        // Create indicator dots dynamically
+        for (let i = 0; i < totalCards; i++) {
+          $('#deckDots').append('<span class="dot" data-index="' + i + '"></span>');
+        }
+        const dots = $('.dot');
+
+        function updateDeck() {
+          cards.removeClass('active prev next hidden-card');
+          dots.removeClass('active-dot');
+
+          cards.each(function (index) {
+            if (index === currentIndex) {
+              $(this).addClass('active');
+            } else if (index === (currentIndex - 1 + totalCards) % totalCards) {
+              $(this).addClass('prev');
+            } else if (index === (currentIndex + 1) % totalCards) {
+              $(this).addClass('next');
+            } else {
+              $(this).addClass('hidden-card');
+            }
+          });
+
+          dots.eq(currentIndex).addClass('active-dot');
+        }
+
+        function nextCard() {
+          currentIndex = (currentIndex + 1) % totalCards;
+          updateDeck();
+        }
+
+        function prevCard() {
+          currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+          updateDeck();
+        }
+
+        function startAutoRotate() {
+          if (!autoRotateTimer) {
+            autoRotateTimer = setInterval(nextCard, 3500);
+          }
+        }
+
+        function stopAutoRotate() {
+          clearInterval(autoRotateTimer);
+          autoRotateTimer = null;
+        }
+
+        // Event listeners
+        $('#nextBtn').click(function () {
+          nextCard();
+        });
+
+        $('#prevBtn').click(function () {
+          prevCard();
+        });
+
+        $(document).on('click', '.deck-card.next', function () {
+          nextCard();
+        });
+
+        $(document).on('click', '.deck-card.prev', function () {
+          prevCard();
+        });
+
+        dots.click(function () {
+          currentIndex = parseInt($(this).attr('data-index'));
+          updateDeck();
+        });
+
+        // Pause rotation on hover
+        $('#timelineDeck, .deck-controls').hover(stopAutoRotate, startAutoRotate);
+
+        // Initialize deck
+        updateDeck();
+        startAutoRotate();
+      });
+    </script>
 </body>
 
 </html>
