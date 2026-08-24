@@ -34,6 +34,9 @@
       width: 100%;
       position: relative;
       overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     /* Side-by-side Layout Wrapper */
@@ -43,7 +46,7 @@
       justify-content: center;
       flex-wrap: wrap;
       margin-top: 10px;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
 
     /* Compact Deck Section Styling */
@@ -227,6 +230,45 @@
       transform: scale(1.15);
     }
 
+    /* Responsive Flowing Elapsed Time Banner */
+    .elapsed-row {
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+
+    .elapsed-time-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 8px 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .elapsed-time-badge .badge-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #94a3b8;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .elapsed-time-badge .badge-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: #38bdf8;
+      letter-spacing: 0.3px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
     @media (max-width: 768px) {
       .content-split-row {
         display: block;
@@ -239,6 +281,12 @@
       }
       .deck-card.next {
         transform: translateX(70px) scale(0.75) translateZ(-80px);
+      }
+      .elapsed-row {
+        text-align: center;
+      }
+      .elapsed-time-badge {
+        align-items: center;
       }
     }
   </style>
@@ -316,11 +364,54 @@
         </div>
       </div>
 
+      <!-- Responsive Bottom Left Elapsed Time Row -->
+      <div class="row elapsed-row">
+        <div class="col-md-12">
+          <div class="elapsed-time-badge">
+            <span class="badge-label"><i class="fa fa-clock-o"></i> Since Aug 21, 2012</span>
+            <span class="badge-value" id="elapsedTimer">0y 0m 0d 0h 0m 0s</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="/assets/js/particles.js"></script>
+
+    <!-- Elapsed Time Calculation -->
+    <script>
+      (function () {
+        function calculateElapsed() {
+          const startDate = new Date(2012, 7, 21, 0, 0, 0); // Month index 7 = August
+          const now = new Date();
+
+          let years = now.getFullYear() - startDate.getFullYear();
+          let months = now.getMonth() - startDate.getMonth();
+          let days = now.getDate() - startDate.getDate();
+
+          if (days < 0) {
+            const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            days += prevMonthLastDay;
+            months--;
+          }
+          if (months < 0) {
+            months += 12;
+            years--;
+          }
+
+          const displayStr = `${years}y ${months}m ${days}d`;
+          const el = document.getElementById('elapsedTimer');
+          if (el) {
+            el.textContent = displayStr;
+          }
+        }
+
+        calculateElapsed();
+        setInterval(calculateElapsed, 1000);
+      })();
+    </script>
 
     <!-- Deck Rotation Engine Script -->
     <script>
@@ -367,7 +458,7 @@
 
         function startAutoRotate() {
           if (!autoRotateTimer) {
-            autoRotateTimer = setInterval(nextCard, 1500);
+            autoRotateTimer = setInterval(nextCard, 2000);
           }
         }
 
